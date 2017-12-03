@@ -1,0 +1,55 @@
+<html>
+<head>
+  <title>JavaScript API</title>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">
+  <script src="./node_modules/web3/dist/web3.min.js"></script>
+</head>
+
+<body>
+
+  <script type="text/javascript">
+  ///First web3.eth.watch code to monitor coinbase
+  // var Web3 = require('web3');
+  var web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+  console.log(web3);
+  console.log(web3.eth.coinbase);
+
+  var testContract = web3.eth.contract([{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"blockNumberPaid","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"hasPaid","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"}]);
+
+  var test = testContract.at('0x9EeDAe2Be27Cb87e443fA82b19b1d4cF2C46E717');
+  console.log(test);
+
+  ///Insert your contract address var here:
+   
+
+  ///Second web3.eth.watch code to monitor block number
+  
+
+</script>
+
+  <div class="header">
+    <h3>JavaScript API</h3>
+  </div>
+
+  <div class="jumbotron">
+    <h5>Coinbase Address: <strong id="coinbase"></strong></h5>
+    <h5>Balance: <strong id="balance"></strong></h5>
+    <h5>Latest Block Number: <strong id="latestBlock"></strong></h5>
+    <h5>Latest Block Timestamp: <strong id="latestBlockTimestamp"></strong></h5>
+    <h5>Latest Block Hash: <strong id="latestBlockHash"></strong></h5>
+    <h5>Contract String: <strong id="contractString"></strong></h5>
+    <h5>Favourite Python: <strong id="favouritePython"></strong></h5>
+    <br>
+  </div>
+
+<script>
+
+    var coinbase = web3.eth.coinbase;
+    document.getElementById('coinbase').innerText = coinbase;
+
+</script>
+
+</body>
+
+</html>
