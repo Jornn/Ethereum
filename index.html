@@ -4,49 +4,80 @@
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">
   <script src="./node_modules/web3/dist/web3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 </head>
 
 <body>
-
-  <script type="text/javascript">
-  ///First web3.eth.watch code to monitor coinbase
-  // var Web3 = require('web3');
-  var web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
-  console.log(web3);
-  console.log(web3.eth.coinbase);
-
-  var testContract = web3.eth.contract([{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"blockNumberPaid","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"hasPaid","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"}]);
-
-  var test = testContract.at('0x9EeDAe2Be27Cb87e443fA82b19b1d4cF2C46E717');
-  console.log(test);
-
-  ///Insert your contract address var here:
-   
-
-  ///Second web3.eth.watch code to monitor block number
-  
-
-</script>
-
   <div class="header">
     <h3>JavaScript API</h3>
+  </div>
+
+  <div class="contract">
+    <h2 id="person"></h2>
+    <h2 id="event"></h2>
+    <label for="name" class="col-lg-2 control-label">
+      <input id="name" type="text">
+
+    <label for="name" class="col-lg-2 control-label">
+      <input id="age" type="text">
+
+    <!-- <label for="name" class="col-lg-2 control-label">
+      <input id="amount" type="text"> -->
+    <button id="button">Update</button>
+    <button id="button2">Get response</button>
   </div>
 
   <div class="jumbotron">
     <h5>Coinbase Address: <strong id="coinbase"></strong></h5>
     <h5>Balance: <strong id="balance"></strong></h5>
-    <h5>Latest Block Number: <strong id="latestBlock"></strong></h5>
-    <h5>Latest Block Timestamp: <strong id="latestBlockTimestamp"></strong></h5>
-    <h5>Latest Block Hash: <strong id="latestBlockHash"></strong></h5>
-    <h5>Contract String: <strong id="contractString"></strong></h5>
-    <h5>Favourite Python: <strong id="favouritePython"></strong></h5>
-    <br>
   </div>
 
 <script>
 
-    var coinbase = web3.eth.coinbase;
-    document.getElementById('coinbase').innerText = coinbase;
+  var web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+  var defaultAccount = web3.eth.accounts[0];
+  web3.eth.defaultAccount = defaultAccount;
+  web3.personal.unlockAccount(defaultAccount, "test123123", 15000);
+
+  var blockNumber = web3.eth.number;
+  $("#coinbase").html(web3.eth.coinbase);
+  $("#balance").html(web3.eth.getBalance("0xefb80b50a2c9424667004324d393ce600df22c3e").c[0]);
+  $("#latestBlock").html(web3.eth.number);
+
+
+  var ChangePersonContract = web3.eth.contract([{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"age","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"string"},{"name":"_age","type":"uint256"}],"name":"changePerson","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"getPerson","outputs":[{"name":"","type":"string"},{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_name","type":"string"},{"name":"_age","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"Name","type":"string"},{"indexed":true,"name":"Age","type":"uint256"}],"name":"ChangePerson","type":"event"}]);
+
+  var ChangePerson = ChangePersonContract.at('0xe63e57712863d2E1eDb30a213ccd0E37E831eefb');
+
+  var ChangePersonEvent = ChangePerson.ChangePerson();
+  ChangePersonEvent.watch(function(error, result){
+    if(!error){
+      $("#event").html("Event");
+    }else{
+      console.log(error);
+    }
+  })
+
+  ChangePerson.getPerson.call(function(error, result){
+    if(!error){
+      $("#person").html(result[0] + " is " + result[1] + " jaar oud.");
+    }else{
+      console.log(error);
+    }
+  })
+
+  $("#button").click(function(){
+    ChangePerson.changePerson($("#name").val(), $("#age").val());
+  })
+
+
+  $("#button2").click(function(){
+    ChangePerson.getPerson.call(function(error, result){
+      if(!error){
+        $("#person").html(result[0] + " is " + result[1] + " jaar oud.");
+      }
+    })
+  })
 
 </script>
 
