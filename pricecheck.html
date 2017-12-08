@@ -61,6 +61,8 @@
 		  	if(!error){
 		  		$("#loader").hide();
 		  		$("#hasPaid").html("Current sender has paid: " + result);
+		  	}else{
+		  		console.log(error);
 		  	}
 		  })
 
