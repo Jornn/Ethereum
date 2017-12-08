@@ -27,7 +27,9 @@ contract PriceCheck is owned{
 	mapping(address => bool) public hasPaid;
 	mapping(address => uint) public blockNumberPaid;
 
-	function PriceCheck() payable{
+	event Paid(address indexed sender, bool indexed paid);
+
+	function() payable{
 		//Check if the balance of the sender + the message value is less than 1 ether
 		require(msg.value + balanceOf[msg.sender] <= price);
 		//Add message value to balance
@@ -41,6 +43,8 @@ contract PriceCheck is owned{
 			hasPaid[msg.sender] = true;
 			blockNumberPaid[msg.sender] = block.number;
 			owner.transfer(balanceOf[msg.sender]);
+			balanceOf[msg.sender] -= msg.value;
+			Paid(msg.sender, hasPaid[msg.sender]);
 		}else{
 			hasPaid[msg.sender] = false;
 		}
@@ -49,11 +53,13 @@ contract PriceCheck is owned{
 	function pay(uint amount){
 		if(amount == 1){
 			hasPaid[msg.sender] = true;
+			Paid(msg.sender, hasPaid[msg.sender]);
 		}
 	}
 
 	function removePayment(){
 		hasPaid[msg.sender] = false;
+		Paid(msg.sender, hasPaid[msg.sender]);
 	}
 
 	function returnPaid() returns (bool){

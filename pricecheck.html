@@ -1,0 +1,89 @@
+<html>
+	<head>
+	  <title>JavaScript API</title>
+	  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">
+	  <script src="./node_modules/web3/dist/web3.min.js"></script>
+  	  <!-- <script src="./node_modules/mysql/index.js"></script> -->
+	  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	</head>
+
+	<body>
+		<main role="main" class="container">
+		  	<div class="starter-template">
+			  	<h1 id="hasPaid"></h1>
+		<!-- 	    <label for="name" class="col-lg-2 control-label">
+			      <input id="name" type="text">
+
+			    <label for="name" class="col-lg-2 control-label">
+			      <input id="age" type="text"> -->
+
+
+			    <!-- <label for="name" class="col-lg-2 control-label">
+			      <input id="amount" type="text"> -->
+			    <button id="pay">Pay 1 eth</button>
+			    <button id="deletePayment">Delete payment</button>
+		  	</div>
+		  	<br>
+		    <div class="jumbotron">
+			  	<h5 ><strong id="geth"></strong></h5>
+			    <h5>Coinbase Address: <strong id="coinbase"></strong></h5>
+			    <h5>Balance: <strong id="balance"></strong></h5>
+		    </div>
+	  	  	<img id="loader"  src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif">
+		</main>
+
+		<script>
+		  var web3 = require('web3');
+
+
+		  var web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+		  var defaultAccount = web3.eth.accounts[0];
+		  web3.eth.defaultAccount = defaultAccount;
+		  web3.personal.unlockAccount(defaultAccount, "test123123", 15000);
+
+		  if(web3.net.listening){
+		  	$("#geth").html("Node is running");
+		  }else{
+		  	$("#geth").html("Node is offline");
+		  }
+
+		  var blockNumber = web3.eth.number;
+		  $("#coinbase").html(web3.eth.coinbase);
+		  $("#balance").html(web3.eth.getBalance("0xefb80b50a2c9424667004324d393ce600df22c3e").c[0]);
+
+		  
+		  var PriceCheckContract = web3.eth.contract([{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"blockNumberPaid","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"removePayment","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"pay","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"returnPaid","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"hasPaid","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"sender","type":"address"},{"indexed":true,"name":"paid","type":"bool"}],"name":"Paid","type":"event"}]);
+		  
+		  var PriceCheck = PriceCheckContract.at('0x40A64CbF8579B2364B919C6A5F788feA8E4c2f5f');
+
+		  PriceCheck.returnPaid.call(function(error, result){
+		  	if(!error){
+		  		$("#loader").hide();
+		  		$("#hasPaid").html("Current sender has paid: " + result);
+		  	}
+		  })
+
+		  $("#pay").click(function(){
+		  	PriceCheck.pay(1);
+		  	$("#loader").show();
+		  })
+
+		  $("#deletePayment").click(function(){
+			PriceCheck.removePayment();
+		  	$("#loader").show();
+		  })
+
+		  var paidEvent = PriceCheck.Paid();
+		  paidEvent.watch(function(error, results){
+		    if(!error){
+		    	console.log(results);
+		    	$("#hasPaid").html("Current sender has paid: " + results.args.paid);
+		  		$("#loader").hide();
+		    }else{
+		      console.log(error);
+		    }
+		  })
+		</script>
+	</body>
+</html>
